@@ -1,17 +1,21 @@
+import json
+import logging
+import os
 from contextlib import ExitStack
+
+import boto3
 from bedrock_agentcore import RequestContext
 from bedrock_agentcore.runtime import BedrockAgentCoreApp
+from mcp import StdioServerParameters, stdio_client
 from strands import Agent
 from strands.models import BedrockModel
 from strands.tools.mcp import MCPClient
-from mcp import stdio_client, StdioServerParameters
-import boto3
-import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """
+あなたは高度なAIエージェントです
 """
 
 boto3_session = boto3.Session(profile_name="aws-sandbox-ryotinjpn")
@@ -21,18 +25,10 @@ model = BedrockModel(
     model_id="us.anthropic.claude-sonnet-4-20250514-v1:0", boto_session=boto3_session
 )
 
-mcp_servers = {
-    "aws-docs": {
-        "command": "uvx",
-        "args": ["awslabs.aws-documentation-mcp-server"],
-        "disabled": False,
-    },
-    "mcp-demo-server": {
-        "command": "python3",
-        "args": ["./server.py"],
-        "disabled": False,
-    },
-}
+# JSONファイルからmcpServers設定を読み込み
+with open(os.path.join(os.path.dirname(__file__), "mcp.json"), "r") as f:
+    config = json.load(f)
+    mcp_servers = config["mcpServers"]
 
 
 def create_mcp_client(server_config):
@@ -56,15 +52,15 @@ with ExitStack() as stack:
         logger.info(f"MCPクライアント '{server_name}' 作成中...")
         client = create_mcp_client(server_config)
         if client:
-            logger.info(f"'{server_name}' のコンテキストに入っています...")
+            logger.info(f"'{server_name}' のコンテキスト設定中...")
             mcp_clients.append(stack.enter_context(client))
 
-    logger.info(f"{len(mcp_clients)}個MCPクライアント作成")
+    logger.info(f"{len(mcp_clients)}個 MCPクライアント作成")
     all_tools = []
     for mcp_name, mcp_client in enumerate(mcp_clients):
         logger.info(f"{mcp_name} からツールを取得中...")
         tools = mcp_client.list_tools_sync()
-        logger.info(f"{mcp_name} から {len(tools)}個ツールを取得")
+        logger.info(f"{mcp_name} から {len(tools)}個 ツール取得")
         all_tools.extend(tools)
 
     agent = Agent(

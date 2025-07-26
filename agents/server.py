@@ -1,7 +1,8 @@
 # server.py - 食品配達MCP
-from mcp.server.fastmcp import FastMCP
 import logging
 from typing import Dict, List
+
+from mcp.server.fastmcp import FastMCP
 
 # ログ設定
 logging.basicConfig(level=logging.INFO)
