@@ -76,6 +76,7 @@ with ExitStack() as stack:
         async for event in agent_stream:
             if "event" in event:
                 yield event
+        logger.info("回答完了")
 
     if __name__ == "__main__":
         app.run()

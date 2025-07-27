@@ -54,6 +54,7 @@ export default function Chat() {
     abortControllerRef.current = new AbortController();
 
     try {
+      console.log('Sending request to agent:', currentInput);
       const response = await fetch('/api/invocations', {
         method: 'POST',
         headers: {
@@ -62,6 +63,9 @@ export default function Chat() {
         body: JSON.stringify({ prompt: currentInput }),
         signal: abortControllerRef.current.signal,
       });
+      console.log('Received response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      console.log('Response body readable:', response.body !== null);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -75,35 +79,54 @@ export default function Chat() {
       }
 
       let buffer = '';
+      let isReceivedContent = false;
       
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      console.log('Starting stream processing...');
+      
+      const processStream = async (): Promise<void> => {
+        const result = await reader.read();
+        
+        if (result.done) {
+          console.log('Stream completed, buffer remaining:', buffer);
+          return;
+        }
 
-        buffer += decoder.decode(value, { stream: true });
+        const chunk = result.value;
+        const decodedChunk = decoder.decode(chunk, { stream: true });
+        console.log('Decoded chunk (length:', chunk.length, '):', JSON.stringify(decodedChunk.substring(0, 200)) + (decodedChunk.length > 200 ? '...' : ''));
+        buffer += decodedChunk;
         const lines = buffer.split('\n');
-        buffer = lines.pop() || ''; // 最後の不完全な行を保持
+        buffer = lines.pop() || '';
 
+        console.log('Processing lines:', lines.length, 'lines:', lines);
         for (const line of lines) {
+          console.log('Processing line:', JSON.stringify(line));
           if (line.startsWith('data: ')) {
+            console.log('Found data line, parsing:', line);
             try {
               const data = JSON.parse(line.slice(6));
               const event = data.event;
+              console.log('Received event:', event);
+              
+              if (event?.messageStart) {
+                console.log('Agent message started');
+                setIsTyping(false);
+              }
               
               if (event?.contentBlockDelta?.delta?.text) {
                 const textChunk = event.contentBlockDelta.delta.text;
-                // リアルタイムでテキストを追加
+                console.log('Received text chunk:', textChunk);
+                isReceivedContent = true;
+                
                 setMessages(prev => {
                   const existingAgent = prev.find(msg => msg.id === agentMessageId);
                   if (existingAgent) {
-                    // 既存のエージェントメッセージを更新
                     return prev.map(msg => 
                       msg.id === agentMessageId 
                         ? { ...msg, text: msg.text + textChunk }
                         : msg
                     );
                   } else {
-                    // 新しいエージェントメッセージを作成
                     const newAgentMessage: Message = {
                       id: agentMessageId,
                       text: textChunk,
@@ -115,11 +138,32 @@ export default function Chat() {
                   }
                 });
               }
+              
+              if (event?.messageStop) {
+                console.log('Agent message completed:', event.messageStop.stopReason);
+              }
+              
             } catch (e) {
-              console.error('Error parsing SSE data:', e);
+              console.error('Error parsing SSE data:', e, 'Raw line:', line);
             }
           }
         }
+
+        return processStream();
+      };
+
+      await processStream();
+      
+      // コンテンツが受信されていない場合の処理
+      if (!isReceivedContent) {
+        console.log('No content received, showing fallback message');
+        const fallbackMessage: Message = {
+          id: agentMessageId,
+          text: '応答を受信できませんでした。再度お試しください。',
+          sender: 'agent',
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, fallbackMessage]);
       }
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
