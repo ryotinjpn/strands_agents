@@ -1,10 +1,19 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Send, Bot, User, Sparkles } from 'lucide-react';
-import { Button } from './ui/button';
-import { Textarea } from './ui/textarea';
-import { Card, CardContent } from './ui/card';
+import { 
+  Box, 
+  Card, 
+  CardContent, 
+  TextField, 
+  Button, 
+  Typography, 
+  Container,
+  Paper,
+  Avatar,
+  Stack
+} from '@mui/material';
+import { Send, SmartToy, Person, AutoAwesome } from '@mui/icons-material';
 
 interface Message {
   id: string;
@@ -200,120 +209,216 @@ export default function Chat() {
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-6xl mx-auto bg-background">
+    <Container maxWidth="lg" sx={{ height: '100vh', display: 'flex', flexDirection: 'column', p: 0 }}>
       {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-border bg-card shadow-lg">
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <Bot className="w-10 h-10 text-primary" />
-            <Sparkles className="w-4 h-4 text-accent-foreground absolute -top-1 -right-1 animate-pulse" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">
-              Strands Agents
-            </h1>
-            <p className="text-sm text-muted-foreground">AI-powered conversation</p>
-          </div>
-        </div>
-      </div>
+      <Paper 
+        elevation={2} 
+        sx={{ 
+          p: 3, 
+          borderRadius: 0,
+          background: 'linear-gradient(45deg, #ff4757 30%, #ff6b7a 90%)'
+        }}
+      >
+        <Stack direction="row" alignItems="center" spacing={2}>
+          <Box sx={{ position: 'relative' }}>
+            <Avatar src="/popo.png" sx={{ bgcolor: 'rgba(255,255,255,0.2)', width: 56, height: 56 }}>
+              <SmartToy sx={{ fontSize: 32, color: 'white' }} />
+            </Avatar>
+            <AutoAwesome 
+              sx={{ 
+                position: 'absolute', 
+                top: -4, 
+                right: -4, 
+                color: 'white',
+                fontSize: 20,
+                animation: 'pulse 2s infinite'
+              }} 
+            />
+          </Box>
+          <Box>
+            <Typography variant="h3" sx={{ color: 'white', fontWeight: 700, mb: 0.5 }}>
+              となりのぽっぽくん
+            </Typography>
+          </Box>
+        </Stack>
+      </Paper>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 flex flex-col-reverse">
+      <Box sx={{ flex: 1, overflow: 'auto', p: 3, display: 'flex', flexDirection: 'column-reverse' }}>
         {isTyping && (
-          <div className="flex items-start space-x-4">
-            <div className="flex-shrink-0">
-              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-lg">
-                <Bot className="w-5 h-5 text-primary-foreground" />
-              </div>
-            </div>
-            <Card className="bg-card border border-border shadow-lg">
-              <CardContent className="px-4 py-1">
-                <div className="flex space-x-1 items-center">
-                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
-                  <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
-                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
-                  <span className="text-xs text-muted-foreground ml-2">Thinking...</span>
-                </div>
+          <Stack direction="row" spacing={2} alignItems="flex-start" sx={{ mb: 2 }}>
+            <Avatar src="/popo.png" sx={{ bgcolor: 'primary.main' }}>
+              <SmartToy />
+            </Avatar>
+            <Card sx={{ maxWidth: '70%' }}>
+              <CardContent sx={{ py: 1.5 }}>
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <Box 
+                    sx={{ 
+                      width: 8, 
+                      height: 8, 
+                      bgcolor: 'primary.main', 
+                      borderRadius: '50%',
+                      animation: 'bounce 1s infinite'
+                    }} 
+                  />
+                  <Box 
+                    sx={{ 
+                      width: 8, 
+                      height: 8, 
+                      bgcolor: 'secondary.main', 
+                      borderRadius: '50%',
+                      animation: 'bounce 1s infinite 0.15s'
+                    }} 
+                  />
+                  <Box 
+                    sx={{ 
+                      width: 8, 
+                      height: 8, 
+                      bgcolor: 'primary.main', 
+                      borderRadius: '50%',
+                      animation: 'bounce 1s infinite 0.3s'
+                    }} 
+                  />
+                  <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+                    考え中...
+                  </Typography>
+                </Stack>
               </CardContent>
             </Card>
-          </div>
+          </Stack>
         )}
 
         {messages.length === 0 && (
-          <div className="text-center mt-12">
-            <div className="relative inline-block">
-              <Bot className="w-20 h-20 text-primary mx-auto mb-6" />
-              <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
-            </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">Welcome to Strands Agents</h2>
-            <p className="text-muted-foreground">Start a conversation and experience the future of AI interaction</p>
-          </div>
+          <Box sx={{ textAlign: 'center', mt: 8 }}>
+            <Box sx={{ position: 'relative', display: 'inline-block', mb: 4 }}>
+              <Avatar 
+                src="/popo.png"
+                sx={{ 
+                  width: 120, 
+                  height: 120, 
+                  bgcolor: 'primary.main',
+                  mx: 'auto',
+                  mb: 2,
+                  background: 'linear-gradient(45deg, #ff4757 30%, #ff6b7a 90%)'
+                }}
+              >
+                <SmartToy sx={{ fontSize: 60 }} />
+              </Avatar>
+            </Box>
+            <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: 'primary.main' }}>
+              となりのぽっぽくんへようこそ
+            </Typography>
+          </Box>
         )}
         
         {messages.slice().reverse().map((message) => (
-          <div
+          <Stack
             key={message.id}
-            className={`flex items-start space-x-4 ${
-              message.sender === 'user' ? 'justify-end' : 'justify-start'
-            }`}
+            direction="row"
+            spacing={2}
+            sx={{
+              justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start',
+              mb: 2
+            }}
           >
             {message.sender === 'agent' && (
-              <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-lg">
-                  <Bot className="w-5 h-5 text-primary-foreground" />
-                </div>
-              </div>
+              <Avatar src="/popo.png" sx={{ bgcolor: 'primary.main' }}>
+                <SmartToy />
+              </Avatar>
             )}
             
-            <Card className={`max-w-lg shadow-lg ${
-              message.sender === 'user'
-                ? 'bg-primary text-primary-foreground ml-auto border-0'
-                : 'bg-card border border-border'
-            }`}>
-              <CardContent className="px-4 py-1">
-                <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.text}</p>
-                <p className="text-xs opacity-70 mt-2">
+            <Card 
+              sx={{
+                maxWidth: '70%',
+                bgcolor: message.sender === 'user' ? 'primary.main' : 'background.paper',
+                color: message.sender === 'user' ? 'primary.contrastText' : 'text.primary',
+                boxShadow: 3
+              }}
+            >
+              <CardContent sx={{ py: 1.5 }}>
+                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
+                  {message.text}
+                </Typography>
+                <Typography 
+                  variant="caption" 
+                  sx={{ 
+                    opacity: 0.7, 
+                    mt: 1, 
+                    display: 'block',
+                    color: message.sender === 'user' ? 'inherit' : 'text.secondary'
+                  }}
+                >
                   {message.timestamp.toLocaleTimeString()}
-                </p>
+                </Typography>
               </CardContent>
             </Card>
 
             {message.sender === 'user' && (
-              <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center shadow-lg">
-                  <User className="w-5 h-5 text-accent-foreground" />
-                </div>
-              </div>
+              <Avatar sx={{ bgcolor: 'secondary.main' }}>
+                <Person />
+              </Avatar>
             )}
-          </div>
+          </Stack>
         ))}
 
-        
         <div ref={messagesEndRef} />
-      </div>
+      </Box>
 
       {/* Input */}
-      <div className="p-6 border-t border-border bg-card">
-        <div className="flex space-x-4 items-end">
-          <div className="flex-1">
-            <Textarea
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask me anything..."
-              className="resize-none min-h-[60px] bg-background border-border focus:border-primary focus:ring-primary/20 shadow-lg"
-              disabled={isTyping}
-            />
-          </div>
+      <Paper elevation={2} sx={{ p: 3, borderRadius: 0 }}>
+        <Stack direction="row" spacing={2} alignItems="flex-end">
+          <TextField
+            fullWidth
+            multiline
+            minRows={2}
+            maxRows={4}
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="何でも聞いてくださいね..."
+            disabled={isTyping}
+            variant="outlined"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                bgcolor: 'background.paper',
+                '&:hover': {
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'primary.light'
+                  }
+                },
+                '&.Mui-focused': {
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'primary.main'
+                  }
+                }
+              }
+            }}
+          />
           <Button
+            variant="contained"
             onClick={sendMessage}
             disabled={!inputMessage.trim() || isTyping}
-            className="bg-primary hover:bg-primary/80 shadow-lg w-[60px] h-[60px] transition-all duration-300 hover:shadow-xl hover:scale-105 disabled:hover:scale-100"
+            sx={{
+              minWidth: 64,
+              height: 64,
+              borderRadius: 3,
+              background: 'linear-gradient(45deg, #ff4757 30%, #ff6b7a 90%)',
+              '&:hover': {
+                background: 'linear-gradient(45deg, #e84357 30%, #ff5569 90%)',
+                transform: 'scale(1.05)',
+                boxShadow: 6
+              },
+              '&:disabled': {
+                transform: 'none'
+              },
+              transition: 'all 0.3s ease'
+            }}
           >
-            <Send className="w-5 h-5" />
+            <Send />
           </Button>
-        </div>
-      </div>
-    </div>
+        </Stack>
+      </Paper>
+    </Container>
   );
 }
