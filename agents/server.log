@@ -1,0 +1,27 @@
+INFO:__main__:MCPクライアント 'aws-docs' 作成中...
+INFO:__main__:'aws-docs' のコンテキスト設定中...
+INFO:__main__:MCPクライアント 'amazon-fresh' 作成中...
+INFO:__main__:'amazon-fresh' のコンテキスト設定中...
+INFO:__main__:Amazon Fresh MCPサーバーを初期化しました
+INFO:__main__:MCPサーバーstdioモード開始
+INFO:__main__:2個 MCPクライアント作成
+INFO:__main__:0 からツールを取得中...
+[07/28/25 07:27:27] INFO     Processing request of type            server.py:625
+                             ListToolsRequest                                   
+INFO:__main__:0 から 3個 ツール取得
+INFO:__main__:1 からツールを取得中...
+INFO:mcp.server.lowlevel.server:Processing request of type ListToolsRequest
+INFO:__main__:1 から 5個 ツール取得
+INFO:     Started server process [59549]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 48] error while attempting to bind on address ('127.0.0.12025-07-28 07:29:07,080 - bedrock_agentcore.app - INFO - [0707887e] Returning streaming response (async generator) (0.001s)
+INFO:bedrock_agentcore.app:Returning streaming response (async generator) (0.001s)
+INFO:     127.0.0.1:61166 - "POST /invocations HTTP/1.1" 200 OK
+INFO:strands.telemetry.metrics:Creating Strands MetricsClient
+2025-07-28 07:29:07,733 - bedrock_agentcore.app - ERROR - [0707887e] Error in async streaming: ValidationException: An error occurred (ValidationException) when calling the ConverseStream operation: Invocation of model ID anthropic.claude-3-5-sonnet-20241022-v2:0 with on-demand throughput isn’t supported. Retry your request with the ID or ARN of an inference profile that contains this model.
+ERROR:bedrock_agentcore.app:Error in async streaming: ValidationException: An error occurred (ValidationException) when calling the ConverseStream operation: Invocation of model ID anthropic.claude-3-5-sonnet-20241022-v2:0 with on-demand throughput isn’t supported. Retry your request with the ID or ARN of an inference profile that contains this model.
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [59476]

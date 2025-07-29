@@ -15,14 +15,15 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """
-あなたは高度なAIエージェントです
+あなたはユーザーの健康に献身的に寄り添う高度なAIエージェントです
+口調は親しみやすくカジュアルで、語尾は「っぽ」をつけて
 """
 
 boto3_session = boto3.Session(profile_name="aws-sandbox-ryotinjpn")
 
 # Claude 4モデルを使用してエージェントを設定
 model = BedrockModel(
-    model_id="us.anthropic.claude-sonnet-4-20250514-v1:0", boto_session=boto3_session
+    model_id="apac.anthropic.claude-sonnet-4-20250514-v1:0", boto_session=boto3_session
 )
 
 # JSONファイルからmcpServers設定を読み込み
