@@ -5,9 +5,9 @@
       "args": ["awslabs.aws-documentation-mcp-server"],
       "disabled": false
     },
-    "mcp-demo-server": {
+    "amazon-fresh": {
       "command": "python3",
-      "args": ["./server.py"],
+      "args": ["./mcp/amazon_fresh.py"],
       "disabled": false
     }
   }
