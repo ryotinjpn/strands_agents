@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Send, Bot, User, Sparkles } from 'lucide-react';
+import { Send, Bot, User } from 'lucide-react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { Card, CardContent } from './ui/card';
@@ -200,22 +200,7 @@ export default function Chat() {
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-6xl mx-auto bg-background">
-      {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-border bg-card shadow-lg">
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <Bot className="w-10 h-10 text-primary" />
-            <Sparkles className="w-4 h-4 text-accent-foreground absolute -top-1 -right-1 animate-pulse" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">
-              Strands Agents
-            </h1>
-            <p className="text-sm text-muted-foreground">AI-powered conversation</p>
-          </div>
-        </div>
-      </div>
+    <div className="flex flex-col h-full max-w-6xl mx-auto bg-background">
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6 flex flex-col-reverse">
