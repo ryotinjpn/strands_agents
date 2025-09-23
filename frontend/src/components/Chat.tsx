@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Send, Bot, User, Sparkles } from 'lucide-react';
+import { Send, Bot, User } from 'lucide-react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { Card, CardContent } from './ui/card';
@@ -19,6 +19,9 @@ export default function Chat() {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const textBufferRef = useRef<string>('');
+  const currentAgentMessageIdRef = useRef<string | null>(null);
+  const displayedLengthRef = useRef<number>(0);
 
   const scrollToBottom = () => {
     const messagesContainer = messagesEndRef.current?.parentElement;
@@ -30,6 +33,36 @@ export default function Chat() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    if (!currentAgentMessageIdRef.current) return;
+
+    const interval = setInterval(() => {
+      const buffer = textBufferRef.current;
+      const chars = Array.from(buffer);
+      const currentDisplayed = displayedLengthRef.current;
+
+      if (currentDisplayed < chars.length) {
+        displayedLengthRef.current = currentDisplayed + 1;
+
+        setMessages(prev => {
+          return prev.map(msg => 
+            msg.id === currentAgentMessageIdRef.current
+              ? { ...msg, text: chars.slice(0, displayedLengthRef.current).join('') }
+              : msg
+          );
+        });
+      } else if (!isTyping && currentDisplayed >= chars.length) {
+        clearInterval(interval);
+        currentAgentMessageIdRef.current = null;
+        displayedLengthRef.current = 0;
+        textBufferRef.current = '';
+      }
+    }, 30);
+
+    return () => clearInterval(interval);
+  }, [isTyping, textBufferRef.current]);
+
 
   const sendMessage = async () => {
     if (!inputMessage.trim() || isTyping) return;
@@ -106,7 +139,7 @@ export default function Chat() {
             try {
               const data = JSON.parse(line.slice(6));
               const event = data.event;
-              console.log('Received event:', event);
+              console.log('Received event:', JSON.stringify(event, null, 2));
               
               if (event?.messageStart) {
                 console.log('Agent message started');
@@ -117,30 +150,30 @@ export default function Chat() {
                 const textChunk = event.contentBlockDelta.delta.text;
                 console.log('Received text chunk:', textChunk);
                 isReceivedContent = true;
-                
+
+                textBufferRef.current += textChunk;
+
                 setMessages(prev => {
                   const existingAgent = prev.find(msg => msg.id === agentMessageId);
-                  if (existingAgent) {
-                    return prev.map(msg => 
-                      msg.id === agentMessageId 
-                        ? { ...msg, text: msg.text + textChunk }
-                        : msg
-                    );
-                  } else {
+                  if (!existingAgent) {
                     const newAgentMessage: Message = {
                       id: agentMessageId,
-                      text: textChunk,
+                      text: '',
                       sender: 'agent',
                       timestamp: new Date(),
                     };
+                    currentAgentMessageIdRef.current = agentMessageId;
+                    displayedLengthRef.current = 0;
                     setIsTyping(false);
                     return [...prev, newAgentMessage];
                   }
+                  return prev;
                 });
               }
               
               if (event?.messageStop) {
                 console.log('Agent message completed:', event.messageStop.stopReason);
+                setIsTyping(false);
               }
               
             } catch (e) {
@@ -195,27 +228,19 @@ export default function Chat() {
     }
   };
 
-  const handleKeyDown = () => {
-    // Enterキーでの送信を無効化
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      // IME確定の場合は無視
+      if (e.nativeEvent.isComposing) {
+        return;
+      }
+      e.preventDefault();
+      sendMessage();
+    }
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-6xl mx-auto bg-background">
-      {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-border bg-card shadow-lg">
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <Bot className="w-10 h-10 text-primary" />
-            <Sparkles className="w-4 h-4 text-accent-foreground absolute -top-1 -right-1 animate-pulse" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">
-              Strands Agents
-            </h1>
-            <p className="text-sm text-muted-foreground">AI-powered conversation</p>
-          </div>
-        </div>
-      </div>
+    <div className="flex flex-col h-full max-w-6xl mx-auto bg-background">
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6 flex flex-col-reverse">
@@ -229,11 +254,42 @@ export default function Chat() {
             <Card className="bg-card border border-border shadow-lg">
               <CardContent className="px-4 py-1">
                 <div className="flex space-x-1 items-center">
-                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
-                  <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
-                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
+                  <div 
+                    className="w-2 h-2 bg-white rounded-full" 
+                    style={{ 
+                      animation: 'bigBounce 1s infinite',
+                      animationDelay: '0s'
+                    }} 
+                  />
+                  <div 
+                    className="w-2 h-2 bg-white rounded-full" 
+                    style={{ 
+                      animation: 'bigBounce 1s infinite',
+                      animationDelay: '0.15s'
+                    }} 
+                  />
+                  <div 
+                    className="w-2 h-2 bg-white rounded-full" 
+                    style={{ 
+                      animation: 'bigBounce 1s infinite',
+                      animationDelay: '0.3s'
+                    }} 
+                  />
                   <span className="text-xs text-muted-foreground ml-2">Thinking...</span>
                 </div>
+                <style jsx>{`
+                  @keyframes bigBounce {
+                    0%, 20%, 50%, 80%, 100% {
+                      transform: translateY(0);
+                    }
+                    40% {
+                      transform: translateY(-12px);
+                    }
+                    60% {
+                      transform: translateY(-6px);
+                    }
+                  }
+                `}</style>
               </CardContent>
             </Card>
           </div>
