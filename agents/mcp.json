@@ -9,6 +9,11 @@
       "command": "python3",
       "args": ["./mcp/amazon_fresh.py"],
       "disabled": false
+    },
+    "qiita": {
+      "command": "python3",
+      "args": ["./mcp/qiita.py"],
+      "disabled": false
     }
   }
 }
