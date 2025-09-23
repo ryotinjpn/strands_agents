@@ -4,8 +4,7 @@ import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { BarChart3, MessageSquare, Bot, PanelRightOpen } from "lucide-react"
-import { Button } from "./ui/button"
+import { BarChart3, MessageSquare, Bot } from "lucide-react"
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: BarChart3 },
