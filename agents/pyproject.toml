@@ -9,6 +9,8 @@ dependencies = [
     "strands-agents>=1.0.1",
     "boto3>=1.0.0",
     "mcp>=1.12.2",
+    "requests>=2.25.0",
+    "bedrock-agentcore-starter-toolkit>=0.1.5",
 ]
 
 [dependency-groups]
